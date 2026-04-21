@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Flutter/Dart
+vigil_upi/build/
+vigil_upi/.dart_tool/
+vigil_upi/.flutter-plugins
+vigil_upi/.flutter-plugins-dependencies
+vigil_upi/android/.gradle/
+vigil_upi/android/local.properties
