@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Required for UPI deep-link callbacks and VPA reputation checks -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Haptic feedback on anomaly detection -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Draw overlay on top of other apps (UPI payment screens) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- Detect foreground app to know when UPI app is active -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <!-- Detect active phone call during payment — #1 UPI scam vector -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <!-- Network state for WiFi risk detection -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Coarse location for new-city detection (no precise GPS needed) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Camera for face liveness on high-value transactions -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Sensor access is implicit; no permission needed for accelerometer/gyro -->
+
+    <queries>
+        <!-- Declare UPI intent so Android 11+ package visibility allows querying
+             installed UPI apps (GPay, PhonePe, Paytm, BHIM, etc.) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="upi" android:host="pay"/>
+        </intent>
+    </queries>
+
+    <application
+        android:label="VigilUPI"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- UPI payment response deep-link — receives txn status from UPI apps -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="upi" android:host="pay"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Overlay service that draws on top of UPI payment screens -->
+        <service
+            android:name=".UpiOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"/>
+
+        <!-- Required by Flutter embedding -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2"/>
+    </application>
+</manifest>
