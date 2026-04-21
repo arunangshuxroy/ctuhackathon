@@ -5,10 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // ── Semantic colors (brightness-independent) ─────────────────────────────
-  static const success          = Color(0xFF00C896);
-  static const onSuccess        = Color(0xFF003828);
-  static const successContainer = Color(0xFF00513A);
-  static const onSuccessContainer = Color(0xFF6FF7C8);
+  static const success          = Color(0xFF5AC05F);  // R90 G192 B95
+  static const onSuccess        = Color(0xFF0A2E0B);
+  static const successContainer = Color(0xFF1A4D1C);
+  static const onSuccessContainer = Color(0xFFB7F0BA);
+
+  static const danger           = Color(0xFFEC6765);  // R236 G103 B101
+  static const onDanger         = Color(0xFF2D0000);
+  static const dangerContainer  = Color(0xFF4E1010);
+  static const onDangerContainer = Color(0xFFFFCDD2);
 
   static const warning          = Color(0xFFFFB300);
   static const onWarning        = Color(0xFF3D2A00);

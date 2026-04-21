@@ -139,25 +139,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _showResultSnackbar(TransactionResult r, String msg) {
     final isSuccess = r == TransactionResult.success;
-    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor:
-          isSuccess ? AppTheme.successContainer : cs.errorContainer,
+          isSuccess ? AppTheme.successContainer : AppTheme.dangerContainer,
       content: Text(msg,
           style: TextStyle(
               color: isSuccess
                   ? AppTheme.onSuccessContainer
-                  : cs.onErrorContainer)),
+                  : AppTheme.onDangerContainer)),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ));
   }
 
   void _showBlockedSnackbar(String msg) {
-    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: cs.errorContainer,
-      content: Text(msg, style: TextStyle(color: cs.onErrorContainer)),
+      backgroundColor: AppTheme.dangerContainer,
+      content: Text(msg, style: const TextStyle(color: AppTheme.onDangerContainer)),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       duration: const Duration(seconds: 4),
@@ -293,8 +291,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Widget _topBar() => Row(
         children: [
-          Icon(Icons.shield_rounded,
-              color: Theme.of(context).colorScheme.primary, size: 28),
+          _AppIcon(size: 36),
           const SizedBox(width: 10),
           Text('VigilUPI',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -334,9 +331,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget _soulprintCard() => Consumer<SoulprintEngine>(
         builder: (_, engine, __) {
           final pct = (engine.confidence * 100).toStringAsFixed(0);
-          final cs = Theme.of(context).colorScheme;
           final color = engine.isAnomaly
-              ? cs.error
+              ? AppTheme.danger
               : engine.confidence > 0.9
                   ? AppTheme.success
                   : AppTheme.warning;
@@ -491,12 +487,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onPressed: _isLoading ? null : _onAuthorize,
               style: FilledButton.styleFrom(
                 backgroundColor: blocked
-                    ? Theme.of(context).colorScheme.errorContainer
+                    ? AppTheme.dangerContainer
                     : calibrating
                         ? AppTheme.warningContainer
                         : null,
                 foregroundColor: blocked
-                    ? Theme.of(context).colorScheme.onErrorContainer
+                    ? AppTheme.onDangerContainer
                     : calibrating
                         ? AppTheme.onWarningContainer
                         : null,
@@ -543,10 +539,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     label: const Text('Demo: Mule'),
                     avatar: const Icon(Icons.warning_amber_rounded, size: 16),
                     selected: engine.isDemoMuleMode,
-                    selectedColor: Theme.of(context).colorScheme.errorContainer,
-                    checkmarkColor: Theme.of(context).colorScheme.onErrorContainer,
+                    selectedColor: AppTheme.dangerContainer,
+                    checkmarkColor: AppTheme.onDangerContainer,
                     labelStyle: engine.isDemoMuleMode
-                        ? TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)
+                        ? const TextStyle(color: AppTheme.onDangerContainer)
                         : null,
                     onSelected: (_) {
                       engine.toggleDemoMuleMode();
@@ -557,32 +553,29 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               if (riskService.isOnCall) ...[
                 const SizedBox(height: 10),
-                Builder(builder: (context) {
-                  final cs = Theme.of(context).colorScheme;
-                  return Card(
-                    color: cs.errorContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      child: Row(
-                        children: [
-                          Icon(Icons.call_rounded,
-                              color: cs.onErrorContainer, size: 16),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '⚠️ Active phone call detected — payments blocked during calls',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: cs.onErrorContainer),
-                            ),
+                Card(
+                  color: AppTheme.dangerContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.call_rounded,
+                            color: AppTheme.onDangerContainer, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '⚠️ Active phone call detected — payments blocked during calls',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: AppTheme.onDangerContainer),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  );
-                }),
+                  ),
+                ),
               ],
             ],
           ),
@@ -610,9 +603,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       tx.blocked
                           ? Icons.block_rounded
                           : Icons.check_circle_rounded,
-                      color: tx.blocked
-                          ? Theme.of(context).colorScheme.error
-                          : AppTheme.success,
+                      color: tx.blocked ? AppTheme.danger : AppTheme.success,
                       size: 20,
                     ),
                     title: Text(tx.vpa,
@@ -621,9 +612,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     trailing: Text(
                       '₹${tx.amount}',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: tx.blocked
-                                ? Theme.of(context).colorScheme.error
-                                : AppTheme.success,
+                            color: tx.blocked ? AppTheme.danger : AppTheme.success,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -659,7 +648,7 @@ class _AnomalyBlockSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Icon(Icons.gpp_bad_rounded, color: cs.error, size: 56)
+          Icon(Icons.gpp_bad_rounded, color: AppTheme.danger, size: 56)
               .animate()
               .scale(
                   begin: const Offset(0.5, 0.5),
@@ -668,14 +657,14 @@ class _AnomalyBlockSheet extends StatelessWidget {
           const SizedBox(height: 12),
           Text('TRANSACTION HALTED',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: cs.error, fontWeight: FontWeight.w800)),
+                  color: AppTheme.danger, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           Text('Behavioral Anomaly Detected',
               style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 20),
           // XAI "Why?" card
           Card(
-            color: cs.errorContainer,
+            color: AppTheme.dangerContainer,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -686,7 +675,7 @@ class _AnomalyBlockSheet extends StatelessWidget {
                           .textTheme
                           .labelSmall
                           ?.copyWith(
-                              color: cs.onErrorContainer, letterSpacing: 2)),
+                              color: AppTheme.onDangerContainer, letterSpacing: 2)),
                   const SizedBox(height: 10),
                   ...engine.anomalyReasons.map(
                     (r) => Padding(
@@ -694,15 +683,15 @@ class _AnomalyBlockSheet extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.arrow_right_rounded,
-                              color: cs.onErrorContainer, size: 18),
+                          const Icon(Icons.arrow_right_rounded,
+                              color: AppTheme.onDangerContainer, size: 18),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(r,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: cs.onErrorContainer)),
+                                    ?.copyWith(color: AppTheme.onDangerContainer)),
                           ),
                         ],
                       ),
@@ -723,8 +712,8 @@ class _AnomalyBlockSheet extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: cs.error,
-                side: BorderSide(color: cs.error),
+                foregroundColor: AppTheme.danger,
+                side: const BorderSide(color: AppTheme.danger),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               icon: const Icon(Icons.arrow_back_rounded),
@@ -799,6 +788,108 @@ class _SoulprintTextFieldState extends State<_SoulprintTextField> {
       ),
     );
   }
+}
+
+// ─── App Icon (matches launcher icon design) ────────────────────────────────
+
+class _AppIcon extends StatelessWidget {
+  final double size;
+  const _AppIcon({this.size = 36});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    final bg    = Theme.of(context).colorScheme.primaryContainer;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(size * 0.25), // squircle-ish
+      ),
+      child: CustomPaint(
+        painter: _ShieldFingerprintPainter(fg: bg),
+      ),
+    );
+  }
+}
+
+class _ShieldFingerprintPainter extends CustomPainter {
+  final Color fg;
+  const _ShieldFingerprintPainter({required this.fg});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // saveLayer so BlendMode.clear punches through only within this layer
+    canvas.saveLayer(Offset.zero & size, Paint());
+
+    final cx = size.width / 2;
+    final cy = size.height / 2 - size.height * 0.03;
+    final w  = size.width  * 0.62;
+    final h  = size.height * 0.72;
+
+    // Shield path
+    final shield = Path()
+      ..moveTo(cx - w / 2, cy - h / 2 + h * 0.15)
+      ..lineTo(cx - w / 2, cy)
+      ..lineTo(cx,         cy + h / 2)
+      ..lineTo(cx + w / 2, cy)
+      ..lineTo(cx + w / 2, cy - h / 2 + h * 0.15)
+      ..lineTo(cx + w / 4, cy - h / 2)
+      ..lineTo(cx,         cy - h / 2 - h * 0.05)
+      ..lineTo(cx - w / 4, cy - h / 2)
+      ..close();
+
+    canvas.drawPath(shield, Paint()..color = fg);
+
+    // Fingerprint arcs — drawn in primary color to "cut through" the white shield
+    final arcCy = cy + size.height * 0.04;
+    final arcPaint = Paint()
+      ..color = fg.withOpacity(0)   // transparent = reveal bg color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    // Use a saveLayer to punch arcs through the shield
+    final cutPaint = Paint()
+      ..color = const Color(0xFF6750A4) // primary — will be overridden at runtime
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    // We draw arcs in the background color to simulate cutouts
+    final bgPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    for (int i = 0; i < 4; i++) {
+      final r = size.width * (0.10 + i * 0.07);
+      bgPaint
+        ..color = fg.withOpacity(0.0)  // transparent reveals container bg
+        ..strokeWidth = size.width * 0.028;
+      // Use BlendMode.clear to punch through
+      final arcPunch = Paint()
+        ..color = const Color(0x006750A4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = size.width * 0.030
+        ..strokeCap = StrokeCap.round
+        ..blendMode = BlendMode.clear;
+      final bbox = Rect.fromCircle(center: Offset(cx, arcCy), radius: r);
+      canvas.drawArc(bbox, 3.49, 2.44, false, arcPunch);
+    }
+
+    // Center dot — punch through
+    canvas.drawCircle(
+      Offset(cx, arcCy),
+      size.width * 0.055,
+      Paint()
+        ..color = const Color(0x00000000)
+        ..blendMode = BlendMode.clear,
+    );
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_ShieldFingerprintPainter old) => old.fg != fg;
 }
 
 // ─── Pulsing Status Dot ───────────────────────────────────────────────────────
