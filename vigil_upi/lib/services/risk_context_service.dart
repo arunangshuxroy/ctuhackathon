@@ -254,7 +254,9 @@ class RiskContextService extends ChangeNotifier {
     final avg = amounts.reduce((a, b) => a + b) / amounts.length;
     final maxPrev = amounts.reduce(max);
 
-    if (amount > maxPrev * 3 && amount > 5000) {
+    // 3x rule only kicks in if the actual amount clears ₹1500 — avoids
+    // false positives when a user's entire history is small (e.g. ₹10 → ₹35).
+    if (amount > maxPrev * 3 && amount > 5000 && maxPrev > 1500) {
       return RiskSignal(
         name: 'Amount',
         level: RiskLevel.high,
@@ -262,7 +264,7 @@ class RiskContextService extends ChangeNotifier {
             '₹${amount.toStringAsFixed(0)} is ${(amount / avg).toStringAsFixed(1)}x your average — unusually large',
       );
     }
-    if (amount > avg * 2 && amount > 2000) {
+    if (amount > avg * 2 && amount > 2000 && avg > 1500) {
       return RiskSignal(
         name: 'Amount',
         level: RiskLevel.medium,
