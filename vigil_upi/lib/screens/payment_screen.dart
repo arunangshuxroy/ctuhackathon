@@ -312,7 +312,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return DropdownMenu<UpiApp>(
       initialSelection: _selectedApp,
       hintText: 'Select App',
-      width: 160,
+      width: 140,
       textStyle: Theme.of(context).textTheme.bodySmall,
       inputDecorationTheme: const InputDecorationTheme(
         isDense: true,
@@ -342,8 +342,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  _PulsingDot(color: color),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

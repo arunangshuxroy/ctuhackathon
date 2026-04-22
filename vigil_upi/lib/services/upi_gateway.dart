@@ -1,12 +1,4 @@
 // lib/services/upi_gateway.dart
-//
-// SAFETY GATE: Every UPI transaction passes through a 4-layer security stack.
-//
-//   Layer 1 — Behavioral Firewall    : SoulprintEngine confidence < 0.75 → block
-//   Layer 2 — VPA Reputation         : scam pattern / mule account → block
-//   Layer 3 — Context Risk           : call active / location jump / amount spike
-//   Layer 4 — Face Liveness          : required for transactions above ₹10,000
-
 import 'package:flutter/material.dart';
 import 'package:upi_india/upi_india.dart';
 
@@ -17,18 +9,39 @@ import 'risk_context_service.dart';
 enum TransactionResult {
   success,
   failure,
-  anomalyBlocked,    // Layer 1: behavioral
-  vpaBlocked,        // Layer 2: VPA reputation
-  contextBlocked,    // Layer 3: environment risk
-  livenessBlocked,   // Layer 4: face liveness failed
+  anomalyBlocked,
+  vpaBlocked,
+  contextBlocked,
+  livenessBlocked,
   submitted,
 }
 
 class UpiGateway {
   final UpiIndia _upi = UpiIndia();
 
-  Future<List<UpiApp>?> getInstalledApps() async =>
-      await _upi.getAllUpiApps(mandatoryTransactionId: false);
+  Future<List<UpiApp>?> getInstalledApps() async {
+    try {
+      List<UpiApp>? apps =
+          await _upi.getAllUpiApps(mandatoryTransactionId: false);
+      if (apps == null || apps.isEmpty) {
+        apps = await _upi.getAllUpiApps(mandatoryTransactionId: true);
+      }
+      if (apps != null && apps.isNotEmpty) return apps;
+    } catch (_) {}
+
+    // Fallback: pre-defined static instances from the package
+    // These carry the correct packageName for startTransaction()
+    return [
+      UpiApp.googlePay,
+      UpiApp.phonePe,
+      UpiApp.paytm,
+      UpiApp.bhim,
+      UpiApp.amazonPay,
+      UpiApp.sbiPay,
+      UpiApp.mobikwik,
+      UpiApp.iMobileICICI,
+    ];
+  }
 
   Future<({TransactionResult result, String message, UpiResponse? response})>
       initiatePayment({
@@ -88,8 +101,6 @@ class UpiGateway {
 
     // ── All layers passed — launch UPI intent ─────────────────────────────
     try {
-      // Pass amount as whole integer value — no decimals.
-      // "10" not "10.0" or "10.00" to avoid bank/app parsing issues.
       final wholeAmount = amountVal.truncate().toDouble();
       final response = await _upi.startTransaction(
         app: app,
@@ -122,12 +133,9 @@ class UpiGateway {
 
   TransactionResult _mapStatus(String? status) {
     switch (status?.toUpperCase()) {
-      case 'SUCCESS':
-        return TransactionResult.success;
-      case 'SUBMITTED':
-        return TransactionResult.submitted;
-      default:
-        return TransactionResult.failure;
+      case 'SUCCESS':   return TransactionResult.success;
+      case 'SUBMITTED': return TransactionResult.submitted;
+      default:          return TransactionResult.failure;
     }
   }
 }
